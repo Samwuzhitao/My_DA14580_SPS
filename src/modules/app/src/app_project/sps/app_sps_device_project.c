@@ -49,7 +49,27 @@
 #include "nvds.h"                    // NVDS Definitions
 #endif //(NVDS_SUPPORT)
 
+#if (BLE_DIS_SERVER)
+#include "app_dis.h"
+#include "app_dis_task.h"
+#endif //(DIS_SUPPORT)
+
+#if (BLE_SEC_SERVER)
+#include "app_sec_task.h"            // Application Security Task API Definition
+#include "app_sec.h"                 // Application Security API Definition
+#endif //(SEC_SUPPORT)
+
+#if (BLE_SAMPLE128)
+#include "app_sample128.h"
+#include "sample128_task.h"
+#endif
+
+
+
 #include <co_math.h>
+
+
+
 
 /*
  * FUNCTION DEFINITIONS
@@ -69,7 +89,36 @@ void app_init_func(void)
     app_set_rxirq_threshold(BLE_RX_BUFFER_CNT/4);
     
     app_sps_init();
+	
+	  #if (BLE_DIS_SERVER)    
+	  app_dis_init();
+    #endif
+		
 }
+
+/**
+ ****************************************************************************************
+ * @brief app_api function. Project's actions in app_sec_init during system initialization
+ *
+ * @return void.
+ ****************************************************************************************
+*/
+
+void app_sec_init_func(void)
+{
+
+/**************************************************
+Initialize security environment. 
+i.e.    
+//Setup required auth mode.  
+****************************************************/  
+#if (BLE_APP_SEC)
+	app_sec_env.auth = (GAP_AUTH_REQ_NO_MITM_BOND);
+#endif
+    
+    
+}
+
 
 /**
  ****************************************************************************************
@@ -105,8 +154,24 @@ void app_connection_func(struct gapc_connection_req_ind const *param)
     * ENABLE REQUIRED PROFILES
     *-------------------------------------------------------------*/
     //enable SPS device role or SPS host and set the proper values
-    app_sps_enable();	
-    
+    app_sps_enable();
+	
+    #if (BLE_DIS_SERVER)    
+				app_dis_enable_prf(app_env.conhdl);
+		#endif
+	
+		# if (BLE_APP_SEC)// send connection confirmation
+        app_connect_confirm(app_sec_env.auth);
+		# else // (BLE_APP_SEC)
+        // send connection confirmation
+        app_connect_confirm(GAP_AUTH_REQ_NO_MITM_NO_BOND);            
+		# endif // (BLE_APP_SEC)
+	
+		#if (BLE_SAMPLE128)
+				app_sample128_enable();
+				ke_timer_set(APP_SAMPLE128_TIMER,TASK_APP,50);
+		#endif
+	
     gattc_exc_mtu_cmd();
     
 }
@@ -243,6 +308,19 @@ bool app_db_init_func(void)
                 // Add SPS services to the database
                 app_sps_create_db();
             } break;
+						#if (BLE_DIS_SERVER)
+						case (APP_DIS_TASK):
+            {
+                // Add DIS services to the database
+                app_dis_create_db_send();
+            } break;
+						#endif
+						#if (BLE_SAMPLE128)
+						case (APP_SAMPLE128):
+						{
+							 app_sample128_create_db_send();
+						} break;
+						#endif
             default:
             {
               ASSERT_ERR(0);
@@ -413,7 +491,7 @@ void app_reset_app(void)
 {
     struct gapm_reset_cmd* cmd = KE_MSG_ALLOC(GAPM_RESET_CMD, TASK_GAPM, TASK_APP,gapm_reset_cmd);		
     cmd->operation = GAPM_RESET;// Set GAPM_RESET
-    ke_msg_send(cmd);// Send the message
+    ke_msg_send(cmd);           // Send the message
 }
 
 /**
@@ -456,10 +534,10 @@ void app_param_update_func(void)
  * @return void
  ****************************************************************************************
  */
-void app_sec_init_func(void)
-{   
-		return;
-}
+//void app_sec_init_func(void)
+//{   
+//		return;
+//}
 
 /**
  ****************************************************************************************
@@ -641,7 +719,30 @@ void app_sec_encrypt_ind_func(void)
     return; 
 }
 
+
+//void app_sec_encrypt_complete_func(void)
+//{
+/**************************************************
+Handle encryption completed event. 
+****************************************************/    
+    
+  //  return; 
+//}
+
+//void app_mitm_passcode_entry_func(ke_task_id_t const src_id, ke_task_id_t const dest_id)
+//{
+    
+/**************************************************
+Handle encryption completed event. 
+****************************************************/        
+    
+  //  return;
+//}
+
 #endif //BLE_APP_SEC
+
+
+
 
 
 

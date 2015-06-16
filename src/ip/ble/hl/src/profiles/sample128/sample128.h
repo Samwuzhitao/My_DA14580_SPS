@@ -27,6 +27,22 @@
 #include "atts.h"
 #include "prf_types.h"
 
+typedef unsigned char  My_new_t[8];
+
+
+/*
+ * MACROS
+ ****************************************************************************************
+*/
+
+#define SAMPLE128_CHAR1_DESC        "message String"
+#define SAMPLE128_CHAR1_DESC_LEN    14
+#define SAMPLE128_CHAR2_DESC        "Timer"
+#define SAMPLE128_CHAR2_DESC_LEN    5
+
+
+
+
 /*
  * ENUMERATIONS
  ****************************************************************************************
@@ -116,7 +132,7 @@ void sample128_init(void);
  ****************************************************************************************
  */
  
-void sample128_send_val(uint8_t val);
+void sample128_send_val(My_new_t val);
 
 /**
  ****************************************************************************************

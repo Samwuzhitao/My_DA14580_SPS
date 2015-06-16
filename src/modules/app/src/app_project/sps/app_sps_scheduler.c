@@ -434,15 +434,21 @@ static void uart_tx_callback(uint8_t res)
     {
         //reset state pointer
         tx_state_ptr = UART_NONE;
-        
         //get data and pointer
         uint8_t size = app_uart_pull(tx_write_pointer, TX_CALLBACK_SIZE, &tx_state_ptr);
-        
         //if there is data available, send data over uart
         if(size > 0)
         {
+					  int i;
             uart_sps_write(tx_write_pointer, size, &tx_state_ptr, &uart_tx_callback);
-            return;
+						for(i=0;i<size;i++)
+						{
+								if(*(tx_write_pointer + i) == '1')
+									GPIO_SetActive(LED1_PORT, LED1_PIN);
+								if(*(tx_write_pointer + i) == '2')
+									GPIO_SetInactive(LED1_PORT, LED1_PIN);
+						}
+   					return;
         }	
         
         //if there is no data but only flow control just send flow control to UART
@@ -456,7 +462,6 @@ static void uart_tx_callback(uint8_t res)
     {
         while(1); //error: callback called from unknown source
     }
-    
     //there is no data in the buffer so the callback is done
     callbackbusy = FALSE; 
 }

@@ -58,4 +58,5 @@
 .\out\app.o: .\..\..\..\src\modules\common\api\co_math.h
 .\out\app.o: d:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
 .\out\app.o: ..\..\..\src\modules\app\src\app_project\sps\uart\uart_sps.h
+.\out\app.o: .\..\..\..\src\modules\app\api\app_sec.h
 .\out\app.o: .\..\..\..\src\modules\nvds\api\nvds.h

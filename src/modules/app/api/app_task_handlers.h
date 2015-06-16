@@ -44,6 +44,15 @@
 #include "app_dis_task.h"
 #endif
 
+#if (BLE_SAMPLE128)
+#include "sample128_task.h"
+#include "app_sample128_task.h"
+#endif
+
+
+
+
+
 #ifdef APP_TASK_HANDLERS_INCLUDE
 #define EXTERN 
 #else
@@ -150,7 +159,7 @@ EXTERN const struct ke_msg_handler app_default_state[] =
 #endif
 
 #if (BLE_SPS_SERVER)
-	{SPS_SERVER_CREATE_DB_CFM,              (ke_msg_func_t)app_sps_create_db_cfm_handler},
+	  {SPS_SERVER_CREATE_DB_CFM,              (ke_msg_func_t)app_sps_create_db_cfm_handler},
     {SPS_SERVER_ENABLE_CFM,                 (ke_msg_func_t)app_sps_server_enable_cfm_handler},
     {SPS_SERVER_REQ_FLOW_CONTROL_IND,       (ke_msg_func_t)app_server_request_flow_control_handler},
 #endif //BLE_SPS_SERVER    
@@ -160,8 +169,14 @@ EXTERN const struct ke_msg_handler app_default_state[] =
     {GAPC_PARAM_UPDATE_REQ_IND,             (ke_msg_func_t)gapc_param_update_req_ind_handler},
     {APP_CONN_TIMER,                        (ke_msg_func_t)app_conn_timer_handler},
 #endif //BLE_SPS_CLIENT    
-      
-		
+   
+#if (BLE_SAMPLE128)
+		{SAMPLE128_CREATE_DB_CFM,               (ke_msg_func_t)sample128_create_db_cfm_handler},
+		{SAMPLE128_VAL_IND,                     (ke_msg_func_t)sample128_val_ind_handler},
+		{SAMPLE128_DISABLE_IND,                 (ke_msg_func_t)sample128_disable_ind_handler},
+		{APP_SAMPLE128_TIMER,                   (ke_msg_func_t)sample128_timer_handler},
+#endif
+
 #if BLE_SPOTA_RECEIVER
     {SPOTAR_PATCH_MEM_DEV_IND,              (ke_msg_func_t)spotar_patch_mem_dev_ind_handler},
     {SPOTAR_GPIO_MAP_IND,                   (ke_msg_func_t)spotar_gpio_map_ind_handler},

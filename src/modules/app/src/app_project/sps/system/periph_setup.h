@@ -55,14 +55,25 @@
 /* UART configuration                                                                   */
 /****************************************************************************************/  
 
-    #define UART1_TX_PORT   GPIO_PORT_0
-    #define UART1_TX_PIN    GPIO_PIN_4
-    #define UART1_RX_PORT   GPIO_PORT_0
-    #define UART1_RX_PIN    GPIO_PIN_5
-    #define UART1_RTS_PORT  GPIO_PORT_0
-    #define UART1_RTS_PIN   GPIO_PIN_3
-    #define UART1_CTS_PORT  GPIO_PORT_0
-    #define UART1_CTS_PIN   GPIO_PIN_2
+#define UART1_TX_PORT   GPIO_PORT_0
+#define UART1_TX_PIN    GPIO_PIN_4
+#define UART1_RX_PORT   GPIO_PORT_0
+#define UART1_RX_PIN    GPIO_PIN_5
+#define UART1_RTS_PORT  GPIO_PORT_0
+#define UART1_RTS_PIN   GPIO_PIN_3
+#define UART1_CTS_PORT  GPIO_PORT_0
+#define UART1_CTS_PIN   GPIO_PIN_2
+
+
+/****************************************************************************************/ 
+/* LED configuration                                                                   */
+/****************************************************************************************/  
+
+#define LED1_PORT       GPIO_PORT_0
+#define LED1_PIN        GPIO_PIN_7
+
+
+
 
 
 /*

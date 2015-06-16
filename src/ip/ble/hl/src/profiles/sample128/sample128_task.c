@@ -59,9 +59,10 @@ static int sample128_create_db_req_handler(ke_msg_id_t const msgid,
     uint8_t nb_att_16;
     uint8_t nb_att_128;
     uint8_t nb_att_32;
-    uint16_t att_decl_svc = ATT_DECL_PRIMARY_SERVICE;
+    uint16_t att_decl_svc  = ATT_DECL_PRIMARY_SERVICE;
     uint16_t att_decl_char = ATT_DECL_CHARACTERISTIC;
-    uint16_t att_decl_cfg = ATT_DESC_CLIENT_CHAR_CFG;
+    uint16_t att_decl_cfg  = ATT_DESC_CLIENT_CHAR_CFG;
+		//uint16_t att_decl_desc =  SAMPLE128_CHAR1_DESC;
     uint16_t val_hdl;
     uint16_t char_hdl; 
 
@@ -73,11 +74,15 @@ static int sample128_create_db_req_handler(ke_msg_id_t const msgid,
      *---------------------------------------------------*/
 
         //Add Service Into Database
-        nb_att_16 = 4; // 2 UUID16 atts
-        nb_att_32 = 0;// No UUID32 att
+        nb_att_16  = 4; // 2 UUID16 atts
+        nb_att_32  = 0;// No UUID32 att
         nb_att_128 = 2; //1 UUID128 att
-        status = attmdb_add_service(&(sample128_env.sample128_shdl), TASK_SAMPLE128,
-                                             nb_att_16, nb_att_32, nb_att_128, 58); //total attributte size = 36, 16 (svc)  + 19 (desc_char) + 1 (att)
+        status = attmdb_add_service(&(sample128_env.sample128_shdl), 
+				                              TASK_SAMPLE128,
+                                      nb_att_16, 
+																			nb_att_32, 
+																			nb_att_128, 
+																			65); //total attributte size = 36, 16 (svc)  + 19 (desc_char) + 8 (att)
 
         if (status == ATT_ERR_NO_ERROR)
         {
@@ -91,16 +96,18 @@ static int sample128_create_db_req_handler(ke_msg_id_t const msgid,
             status = attmdb_att_set_value(sample128_env.sample128_shdl, ATT_UUID_128_LEN, (uint8_t *)sample128_svc.uuid);
             
             
-//char 1     
+//////char 1     
             //add char attribute
             status = attmdb_add_attribute(sample128_env.sample128_shdl, ATT_UUID_128_LEN + 3, //Data size = 19 (ATT_UUID_128_LEN + 3)
                                                ATT_UUID_16_LEN, (uint8_t*) &att_decl_char, PERM(RD, ENABLE),
                                                &(char_hdl));
             
-            
+            //status = attmdb_add_attribute(sample128_env.sample128_shdl, SAMPLE128_CHAR1_DESC_LEN, 
+            //                                   ATT_UUID_16_LEN, (uint8_t*) &att_decl_desc, PERM(RD, ENABLE),
+            //                                   &(desc_hdl));
             
             //add val attribute
-            status = attmdb_add_attribute(sample128_env.sample128_shdl, sizeof(uint8_t), //Data size = 1
+            status = attmdb_add_attribute(sample128_env.sample128_shdl, sizeof(My_new_t), //Data size = 8
                                                ATT_UUID_128_LEN, (uint8_t*)&sample128_1_val.uuid, PERM(RD, ENABLE) | PERM(WR, ENABLE),
                                                &(val_hdl));
             
@@ -185,7 +192,7 @@ static int sample128_enable_req_handler(ke_msg_id_t const msgid,
 
         //set char 1 to specified value
         attmdb_att_set_value(sample128_env.sample128_shdl + SAMPLE128_1_IDX_VAL,
-                             sizeof(uint8_t), (uint8_t *)&param->sample128_1_val);
+                             sizeof(My_new_t), (uint8_t *)&param->sample128_1_val);
         
         attmdb_att_set_value(sample128_env.sample128_shdl + SAMPLE128_2_IDX_VAL,
                              sizeof(uint8_t), (uint8_t *)&param->sample128_2_val);
@@ -287,11 +294,11 @@ static int gattc_write_cmd_ind_handler(ke_msg_id_t const msgid,
         {
             
             //Save value in DB
-            attmdb_att_set_value(param->handle, sizeof(uint8_t), (uint8_t *)&param->value[0]);
+            attmdb_att_set_value(param->handle, sizeof(My_new_t), (uint8_t *)&param->value[0]);
             
             if(param->last)
             {
-                sample128_send_val(param->value[0]);
+                sample128_send_val((uint8_t *)param->value[0]);
             }
 
             status = PRF_ERR_OK;

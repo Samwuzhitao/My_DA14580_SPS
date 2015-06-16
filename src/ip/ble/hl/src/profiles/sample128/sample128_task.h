@@ -96,7 +96,7 @@ struct sample128_enable_req
     uint8_t sec_lvl;
 
     /// characteristic 1 value
-    uint8_t sample128_1_val;
+    My_new_t sample128_1_val;
     
     /// characteristic 2 value
     uint8_t sample128_2_val;
@@ -118,7 +118,7 @@ struct sample128_val_ind
     /// Connection handle
     uint16_t conhdl;
     /// Value
-    uint8_t val;
+    My_new_t val;
     
 };
 

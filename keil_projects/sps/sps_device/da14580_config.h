@@ -53,10 +53,16 @@
 #define CFG_NVDS
 
 /* BLE Security  */
-#undef CFG_APP_SEC
+#define CFG_APP_SEC
 
 /* Coarse calibration */
 #define CFG_LUT_PATCH
+
+/* Coarse calibration */
+#define CFG_PRF_DISS
+
+/* Dialog¡®s Sample 128 bit UUIDs Profile */
+#define CFG_PRF_SAMPLE128
 
 /*Watchdog*/
 #undef CFG_WDOG 
@@ -64,6 +70,13 @@
 /*Sleep modes*/
 #define CFG_EXT_SLEEP  
 #undef CFG_DEEP_SLEEP  
+
+
+
+
+
+
+
 
 /*Maximum user connections*/
 #define BLE_CONNECTION_MAX_USER 1

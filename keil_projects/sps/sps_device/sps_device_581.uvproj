@@ -165,6 +165,7 @@
             <Capability>0</Capability>
             <DriverSelection>-1</DriverSelection>
           </Flash1>
+          <bUseTDR>0</bUseTDR>
           <Flash2></Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
@@ -531,6 +532,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\src\ip\ble\hl\src\profiles\sps\sps_server\sps_server_task.c</FilePath>
             </File>
+            <File>
+              <FileName>diss.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\ip\ble\hl\src\profiles\dis\diss\diss.c</FilePath>
+            </File>
+            <File>
+              <FileName>diss_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\ip\ble\hl\src\profiles\dis\diss\diss_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -565,6 +576,46 @@
               <FileName>app_spss.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\modules\app\src\app_profiles\spss\app_spss.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_dis.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\modules\app\src\app_profiles\diss\app_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_dis_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\modules\app\src\app_profiles\diss\app_dis_task.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>configure</GroupName>
+          <Files>
+            <File>
+              <FileName>da14580_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\da14580_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>da14580_scatter_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\da14580_scatter_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>da14580_stack_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\da14580_stack_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>rwble_hl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl.h</FilePath>
+            </File>
+            <File>
+              <FileName>rwble_hl_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl_config.h</FilePath>
             </File>
           </Files>
         </Group>
