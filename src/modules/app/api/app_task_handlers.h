@@ -160,6 +160,7 @@ EXTERN const struct ke_msg_handler app_default_state[] =
 
 #if (BLE_SPS_SERVER)
 	  {SPS_SERVER_CREATE_DB_CFM,              (ke_msg_func_t)app_sps_create_db_cfm_handler},
+//		{SPS_SERVER_LED_CONTROL_IND,            (ke_msg_func_t)app_sps_led_control_val_ind_handler},
     {SPS_SERVER_ENABLE_CFM,                 (ke_msg_func_t)app_sps_server_enable_cfm_handler},
     {SPS_SERVER_REQ_FLOW_CONTROL_IND,       (ke_msg_func_t)app_server_request_flow_control_handler},
 #endif //BLE_SPS_SERVER    

@@ -81,6 +81,10 @@ int app_server_request_flow_control_handler(ke_msg_id_t const msgid,
                                       ke_task_id_t const src_id);
 
 
+int app_sps_led_control_val_ind_handler(ke_msg_id_t const msgid,
+                                      struct sps_server_led_val_ind const *param,
+                                      ke_task_id_t const dest_id,
+                                      ke_task_id_t const src_id);
 /// @} APP
 
 #endif // PRJ1_PROJ_TASK

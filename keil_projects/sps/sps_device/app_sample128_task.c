@@ -84,14 +84,14 @@ int sample128_timer_handler(ke_msg_id_t const msgid,
 	
 	ke_timer_set(APP_SAMPLE128_TIMER,TASK_APP,50); 
 	
-	sample128_placeholder += 2; 
+	sample128_placeholder += 1; 
 					
 	struct sample128_upd_char2_req *req = KE_MSG_ALLOC( 
-																									 SAMPLE128_UPD_CHAR2_REQ, 
-																									 TASK_SAMPLE128, 
-	                                                 TASK_APP, 
-																									 sample128_upd_char2_req 
-																								 ); 
+																									   SAMPLE128_UPD_CHAR2_REQ, 
+																									   TASK_SAMPLE128, 
+	                                                   TASK_APP, 
+																									   sample128_upd_char2_req 
+																								    ); 
 	req->val = sample128_placeholder; 
 	req->conhdl = app_env.conhdl; 
 	ke_msg_send(req); 

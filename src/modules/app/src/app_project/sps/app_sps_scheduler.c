@@ -439,15 +439,9 @@ static void uart_tx_callback(uint8_t res)
         //if there is data available, send data over uart
         if(size > 0)
         {
-					  int i;
+
             uart_sps_write(tx_write_pointer, size, &tx_state_ptr, &uart_tx_callback);
-						for(i=0;i<size;i++)
-						{
-								if(*(tx_write_pointer + i) == '1')
-									GPIO_SetActive(LED1_PORT, LED1_PIN);
-								if(*(tx_write_pointer + i) == '2')
-									GPIO_SetInactive(LED1_PORT, LED1_PIN);
-						}
+			
    					return;
         }	
         
@@ -925,7 +919,8 @@ sleep_mode_t app_rwip_sleep_check(void)
          **************           CHECK RADIO POWER DOWN           **************
          ************************************************************************/
         // Check if BLE + Radio are still sleeping
-        if(GetBits16(SYS_STAT_REG, RAD_IS_DOWN)) {
+        if(GetBits16(SYS_STAT_REG, RAD_IS_DOWN)) 
+				{
             // If BLE + Radio are in sleep return the appropriate mode for ARM
             proc_sleep = mode_sleeping;
             break;
@@ -999,13 +994,13 @@ static void app_sleep_prepare(sleep_mode_t *sleep_mode)
 {
     if(*sleep_mode == mode_sleeping)
     {
-#if (UART_SW_FLOW_ENABLED)
+        #if (UART_SW_FLOW_ENABLED)
         if (!uart_sps_sw_flow_off())
-#endif //UART_SW_FLOW_ENABLED
+        #endif //UART_SW_FLOW_ENABLED
 
-#if (UART_HW_FLOW_ENABLED)
+        #if (UART_HW_FLOW_ENABLED)
         if (!uart_sps_flow_off())
-#endif //UART_HW_FLOW_ENABLED
+        #endif //UART_HW_FLOW_ENABLED
         {
             *sleep_mode = mode_idle;
         }

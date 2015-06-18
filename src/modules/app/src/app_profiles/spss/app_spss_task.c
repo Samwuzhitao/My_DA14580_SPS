@@ -38,6 +38,7 @@
 
 #if (BLE_SPS_SERVER)
 
+
 /**
  ****************************************************************************************
  * @brief Handles start indication if the database is created
@@ -112,6 +113,22 @@ int app_server_request_flow_control_handler(ke_msg_id_t const msgid,
     
     return (KE_MSG_CONSUMED);
 }
+
+
+
+//int app_sps_led_control_val_ind_handler(ke_msg_id_t const msgid,
+//                                      struct sps_server_led_val_ind const *param,
+//                                      ke_task_id_t const dest_id,
+//                                      ke_task_id_t const src_id)
+//{
+//     //= param->status ;
+//	  memcpy(&sps_led_value,&param->value,sizeof(uint8_t));
+//	  //set LED to specified value
+//	  printf_string(" sps_server_led_send_val : ok !\r\n");
+//    //ke_msg_send(req);
+//    
+//    return (KE_MSG_CONSUMED);
+//}
 #endif //(BLE_SPS_SERVER)
 #endif //(BLE_APP_PRESENT)
 

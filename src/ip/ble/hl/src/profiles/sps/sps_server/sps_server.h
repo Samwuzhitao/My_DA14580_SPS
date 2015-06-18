@@ -54,7 +54,7 @@
 #define SPS_SERVER_TX_UUID 				{0xb8, 0x5c, 0x49, 0xd2, 0x04, 0xa3, 0x40, 0x71, 0xa0, 0xb5, 0x35, 0x85, 0x3e, 0xb0, 0x83, 0x07}
 #define SPS_SERVER_RX_UUID				{0xba, 0x5c, 0x49, 0xd2, 0x04, 0xa3, 0x40, 0x71, 0xa0, 0xb5, 0x35, 0x85, 0x3e, 0xb0, 0x83, 0x07}
 #define SPS_FLOW_CTRL_UUID			 	{0xb9, 0x5c, 0x49, 0xd2, 0x04, 0xa3, 0x40, 0x71, 0xa0, 0xb5, 0x35, 0x85, 0x3e, 0xb0, 0x83, 0x07}
-
+#define SPS_LED_UUID			      	{0xbb, 0x5c, 0x49, 0xd2, 0x04, 0xa3, 0x40, 0x71, 0xa0, 0xb5, 0x35, 0x85, 0x3e, 0xb0, 0x83, 0x07}
 /*
  * DEFINES
  ****************************************************************************************
@@ -91,6 +91,8 @@ struct sps_server_env_tag
 #define SPS_SERVER_RX_DESC_LEN        14
 #define SPS_SERVER_FLOW_CTRL_DESC     "Flow Control"
 #define SPS_SERVER_FLOW_CTRL_DESC_LEN 12
+#define SPS_SERVER_LED_CTRL_DESC      "LED Control"
+#define SPS_SERVER_LED_CTRL_DESC_LEN  11
 
 /* Serial Port Service Device service */
 enum
@@ -112,6 +114,11 @@ enum
 	  SPS_FLOW_CTRL_CFG,
 	  SPS_FLOW_CTRL_DESC,
 	
+		SPS_LED_CTRL_CHAR,
+    SPS_LED_CTRL_VAL,
+	  SPS_LED_CTRL_CFG,
+	  SPS_LED_CTRL_DESC,
+		
     SPS_SERVER_IDX_NB   
 };
 
@@ -132,7 +139,7 @@ extern struct sps_server_env_tag sps_server_env;
  ****************************************************************************************
  */
 void sps_server_init(void);
-
+void sps_server_led_send_val(uint8_t val);
 
 #endif /* BLE_SPS_SERVER */
 

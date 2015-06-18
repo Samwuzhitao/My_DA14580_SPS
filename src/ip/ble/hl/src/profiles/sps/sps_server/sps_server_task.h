@@ -66,24 +66,26 @@ enum
 {
     /// Enables the Serial Port Service Device profile. The profile has to be enabled only
     /// once a connection has been established by the application
-    SPS_SERVER_ENABLE_REQ = KE_FIRST_MSG(TASK_SPS_SERVER),
-    
+    SPS_SERVER_ENABLE_REQ = KE_FIRST_MSG(TASK_SPS_SERVER),  
     //Enable condirmation message
     SPS_SERVER_ENABLE_CFM,
-    
     /// Create SPS database request
     SPS_SERVER_CREATE_DB_REQ,
-    
     /// Create SPS database response
     SPS_SERVER_CREATE_DB_CFM,
-    
     // Request to initialize transmission
     SPS_SERVER_INIT_BLE_TX_REQ,
-    
+	
     // Send flow control status
     SPS_SERVER_SEND_FLOW_CONTROL_REQ,
-    
     SPS_SERVER_REQ_FLOW_CONTROL_IND,
+	
+	  // Send led control status
+    SPS_SERVER_LED_CONTROL_REQ,
+    SPS_SERVER_LED_CONTROL_IND,
+
+	  /// Error Indication
+    SPS_SERVER_ERROR_IND,
 };
 
 /// @ref SPS_SERVER_ENABLE_REQ parameters structure description.
@@ -94,6 +96,10 @@ struct sps_server_enable_req
     
     /// Connection handle
     uint16_t conhdl;
+	
+	  /// characteristic led value
+    uint8_t led_val;
+    
 };
 
 struct sps_server_enable_cfm
@@ -135,6 +141,17 @@ struct sps_server_request_flow_control_ind
     uint8_t status;
 };
 
+/// @ref SPS_SERVER_SEND_LED_CONTROL_REQ parameters structure description,
+struct sps_server_send_notify_led_control_state_req
+{
+    // led control state
+    uint8_t 	led_control_state;
+};
+
+struct sps_server_led_val_ind
+{
+	  uint8_t value;
+};
 /*
  * TASK DESCRIPTOR DECLARATIONS
  ****************************************************************************************
@@ -143,7 +160,7 @@ extern const struct ke_state_handler sps_server_state_handler[SPS_SERVER_STATE_M
 extern const struct ke_state_handler sps_server_default_handler;
 extern ke_state_t sps_server_state[SPS_SERVER_IDX_MAX];
 extern uint8_t tx_busy_flag;
-
+extern uint8_t sps_led_value;
 /// @} SPS_SERVERTASK
 
 #endif // SPS_SERVER_TASK_H_

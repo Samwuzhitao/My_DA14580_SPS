@@ -59,7 +59,7 @@
 #define CFG_LUT_PATCH
 
 /* Coarse calibration */
-#define CFG_PRF_DISS
+#undef CFG_PRF_DISS
 
 /* Dialog¡®s Sample 128 bit UUIDs Profile */
 #define CFG_PRF_SAMPLE128

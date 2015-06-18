@@ -59,9 +59,8 @@ void sps_server_init(void)
 
     // Go to IDLE state
     ke_state_set(TASK_SPS_SERVER, SPS_SERVER_DISABLED);
-	  printf_string(" sps_server_init : sps_server_init \r\n");
+	 // printf_string(" sps_server_init : sps_server_init \r\n");
 }
-
 
 #endif // BLE_SPS_SERVER
 

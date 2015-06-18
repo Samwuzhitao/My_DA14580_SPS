@@ -34,11 +34,12 @@
 #include "sps_server_task.h"
 #include "uart_sps.h"
 #include "atts_util.h"
-
 #include "app_spss.h"
-
+#include "gpio.h"
+#include "periph_setup.h"
 #if BLE_SPS_SERVER
 
+uint8_t sps_led_value = 0xff;
 //Flags
 //Transmission bussy flag counting the expected GATTC_NOTIFY indications
 uint8_t tx_busy_flag __attribute__((section("retention_mem_area0"),zero_init)); //@RETENTION MEMORY
@@ -47,33 +48,63 @@ uint8_t tx_busy_flag __attribute__((section("retention_mem_area0"),zero_init)); 
 static const uint8_t sps_server_tx_desc[] = SPS_SERVER_TX_DESC;
 static const uint8_t sps_server_rx_desc[] = SPS_SERVER_RX_DESC;
 static const uint8_t sps_server_flow_ctrl_desc[] = SPS_SERVER_FLOW_CTRL_DESC;
-
+static const uint8_t sps_server_led_ctrl_desc[] = SPS_SERVER_LED_CTRL_DESC;
 
 /// Service
 const struct att_uuid_128 sps_svc     = {SPS_SERVICE_UUID};
 
  
 /// TX Data characteristic UUID
-const struct att_uuid_128 sps_data_tx_val     = {SPS_SERVER_TX_UUID};
+const struct att_uuid_128 sps_data_tx_val = 
+{
+	SPS_SERVER_TX_UUID
+};
 
-struct att_char128_desc sps_data_server_tx_char = {ATT_CHAR_PROP_NTF,
-                                                    {0,0},
-                                                    SPS_SERVER_TX_UUID}; 
+struct att_char128_desc sps_data_server_tx_char = 
+{
+	ATT_CHAR_PROP_NTF,
+  {0,0},
+  SPS_SERVER_TX_UUID
+}; 
 
 // RX Data characteristic UUID
-const struct att_uuid_128 sps_data_rx_val     = {SPS_SERVER_RX_UUID};
+const struct att_uuid_128 sps_data_rx_val = 
+{
+	SPS_SERVER_RX_UUID
+};
 
-struct att_char128_desc sps_data_server_rx_char = {ATT_CHAR_PROP_WR_NO_RESP,
-                                                    {0,0},
-                                                    SPS_SERVER_RX_UUID}; 
+struct att_char128_desc sps_data_server_rx_char = 
+{
+	ATT_CHAR_PROP_WR_NO_RESP,
+  {0,0},
+  SPS_SERVER_RX_UUID
+}; 
 
 //Flow characteristic UUID
-const struct att_uuid_128 sps_flow_ctrl_val     = {SPS_FLOW_CTRL_UUID};
+const struct att_uuid_128 sps_flow_ctrl_val = 
+{
+	SPS_FLOW_CTRL_UUID
+};
 
-struct att_char128_desc sps_flow_ctrl_char = {ATT_CHAR_PROP_RD | ATT_CHAR_PROP_WR_NO_RESP | ATT_CHAR_PROP_NTF,
-                                                    {0,0},
-                                                    SPS_FLOW_CTRL_UUID}; 
+struct att_char128_desc sps_flow_ctrl_char = 
+{	
+	ATT_CHAR_PROP_RD | ATT_CHAR_PROP_WR_NO_RESP | ATT_CHAR_PROP_NTF,
+  {0,0},
+  SPS_FLOW_CTRL_UUID
+}; 
 
+//LED characteristic UUID
+const struct att_uuid_128 sps_led_ctrl_val = 
+{	
+	SPS_LED_UUID
+};
+
+struct att_char128_desc sps_led_ctrl_char = 
+{	
+	ATT_CHAR_PROP_RD | ATT_CHAR_PROP_WR_NO_RESP ,
+  {0,0},
+  SPS_LED_UUID
+}; 
 /*
  * Test parameters
  ****************************************************************************************
@@ -119,15 +150,16 @@ static int sps_server_create_db_req_handler(ke_msg_id_t const msgid,
     sps_server_env.appid = src_id;
 
     //Add Service Into Database
-    nb_att_16 = 10; //  UUID16 atts
-    nb_att_32 = 0;// No UUID32 att
-    nb_att_128 = 3; // UUID128 att
+    nb_att_16  = 10 + 2; //  UUID16 atts
+    nb_att_32  = 0;      // No UUID32 att
+    nb_att_128 = 3 + 1;  // UUID128 att
                                              
     do 
     {
+			  // 16 + (19 + 160 + 2 + 14) + (19 + 160 + 2 + 14) + (19 + 1 + 2 +12) + (19 + 1 + 2 +11)
+			  // = 440  + (19 + 1 + 2 +12) = 473
         status = attmdb_add_service(&(sps_server_env.shdl), TASK_SPS_SERVER,
-                                             nb_att_16, nb_att_32, nb_att_128,440); // 16 + (19 + 160 + 2 + 14) + (19 + 160 + 2 + 14) + (19 + 1 + 2 +12) = 440
-        
+                                             nb_att_16, nb_att_32, nb_att_128,473); 
         if (status != ATT_ERR_NO_ERROR)
             break;
         
@@ -246,7 +278,7 @@ static int sps_server_create_db_req_handler(ke_msg_id_t const msgid,
         
         //add val attribute
         status = attmdb_add_attribute(sps_server_env.shdl, sizeof(uint8_t), //Data size = 1
-                                           ATT_UUID_128_LEN, (uint8_t*)&sps_flow_ctrl_val.uuid, PERM(RD, ENABLE) | PERM(WR, ENABLE) | PERM(NTF, ENABLE),
+                                           ATT_UUID_128_LEN, (uint8_t*)&sps_flow_ctrl_val.uuid, PERM(RD, ENABLE) | PERM(WR, ENABLE) ,
                                            &(val_hdl));
 
         if (status != ATT_ERR_NO_ERROR)
@@ -262,7 +294,7 @@ static int sps_server_create_db_req_handler(ke_msg_id_t const msgid,
         
         //add cfg attribute
         status = attmdb_add_attribute(sps_server_env.shdl, sizeof(uint16_t), 
-                                               ATT_UUID_16_LEN, (uint8_t*) &att_decl_cfg, PERM(RD, ENABLE) | PERM(WR, ENABLE),
+                                               ATT_UUID_16_LEN, (uint8_t*) &att_decl_cfg, PERM(RD, ENABLE) | PERM(WR, ENABLE) ,
                                                &(val_hdl));
         
         if (status != ATT_ERR_NO_ERROR)
@@ -276,9 +308,54 @@ static int sps_server_create_db_req_handler(ke_msg_id_t const msgid,
             break;
         
         status = attmdb_att_set_value(desc_hdl, SPS_SERVER_FLOW_CTRL_DESC_LEN, (uint8_t*) sps_server_flow_ctrl_desc);
+				
+        if (status != ATT_ERR_NO_ERROR)
+					break;
+				
+//LED Ctrl characteristic     
+        //add char attribute				
+				status = attmdb_add_attribute(sps_server_env.shdl, ATT_UUID_128_LEN + 3, //Data size = 19 (ATT_UUID_128_LEN + 3)
+                                           ATT_UUID_16_LEN, (uint8_t*) &att_decl_char, PERM(RD, ENABLE),
+                                           &(char_hdl));
         
-        break;
+        if (status != ATT_ERR_NO_ERROR)
+            break;
+				
+		    //add val attribute
+        status = attmdb_add_attribute(sps_server_env.shdl, sizeof(uint8_t), //Data size = 1
+                                           ATT_UUID_128_LEN, (uint8_t*)&sps_led_ctrl_val.uuid, PERM(RD, ENABLE) | PERM(WR, ENABLE),
+                                           &(val_hdl));
+
+        if (status != ATT_ERR_NO_ERROR)
+            break;		
+				
+				// ÉèÖÃÌØÐÔ¾ä±ú
+				memcpy(sps_led_ctrl_char.attr_hdl, &val_hdl, sizeof(uint16_t));
+				
+				status = attmdb_att_set_value(char_hdl, sizeof(sps_led_ctrl_char), (uint8_t *)&sps_led_ctrl_char);
         
+        if (status != ATT_ERR_NO_ERROR)
+            break;
+				
+				//add cfg attribute
+        status = attmdb_add_attribute(sps_server_env.shdl, sizeof(uint16_t), 
+                                               ATT_UUID_16_LEN, (uint8_t*) &att_decl_cfg, PERM(RD, ENABLE) | PERM(WR, ENABLE) | PERM(NTF, ENABLE),
+                                               &(val_hdl));
+        
+        if (status != ATT_ERR_NO_ERROR)
+					  break;
+
+        status = attmdb_add_attribute(sps_server_env.shdl, SPS_SERVER_LED_CTRL_DESC_LEN, 
+                                               ATT_UUID_16_LEN, (uint8_t*) &att_decl_desc, PERM(RD, ENABLE),
+                                               &(desc_hdl));
+        
+        if (status != ATT_ERR_NO_ERROR)
+            break;
+				
+				status = attmdb_att_set_value(desc_hdl, SPS_SERVER_LED_CTRL_DESC_LEN, (uint8_t*) sps_server_led_ctrl_desc);
+
+					break;
+				 
     }while(0);
     
     //Disable GLS
@@ -324,25 +401,42 @@ static int sps_server_enable_req_handler(ke_msg_id_t const msgid,
     // Save the connection handle associated to the profile
     sps_server_env.con_info.conidx = gapc_get_conidx(param->conhdl);
     
-    // Save the connection handle associated to the profile
-    sps_server_env.conhdl = param->conhdl;
-   
-    //Enable Service
-    attmdb_svc_set_permission(sps_server_env.shdl, PERM(SVC, ENABLE));
 	
-    //Reset flags
-    tx_busy_flag = 0;
-    
-    // Go to active state
-    ke_state_set(TASK_SPS_SERVER, SPS_SERVER_ACTIVE);
-       
+	 // Check if the provided connection exist
+    if (sps_server_env.con_info.conidx == GAP_INVALID_CONIDX)
+    {
+        // The connection doesn't exist, request disallowed
+        prf_server_error_ind_send((prf_env_struct *)&sps_server_env, PRF_ERR_REQ_DISALLOWED,
+                 SPS_SERVER_ERROR_IND, SPS_SERVER_ENABLE_REQ);
+    }
+    else
+    {
+        // Save the connection handle associated to the profile
+				sps_server_env.conhdl = param->conhdl;
+			 
+				//Enable Service
+				attmdb_svc_set_permission(sps_server_env.shdl, PERM(SVC, ENABLE));
+			
+				//Reset flags
+				tx_busy_flag = 0;
+			
+
+        //set LED to specified value
+        attmdb_att_set_value(sps_server_env.shdl + SPS_LED_CTRL_VAL,
+                             sizeof(uint8_t), (uint8_t *)&param->led_val);    
+        //attmdb_att_set_value(char_hdl, sizeof(sps_led_ctrl_char), (uint8_t *)&sps_led_ctrl_char);
+				// Go to active state
+				ke_state_set(TASK_SPS_SERVER, SPS_SERVER_ACTIVE);
+    }
+	
     //Send response to application
     struct sps_server_enable_cfm * cfm = KE_MSG_ALLOC(SPS_SERVER_ENABLE_CFM, sps_server_env.appid,
                                                     TASK_SPS_SERVER, sps_server_enable_cfm);
     
     cfm->data_hdl = sps_server_env.shdl + SPS_SERVER_TX_DATA_VAL;
+		
     ke_msg_send(cfm);
-   // printf_string(" sps_server_enable_req_handler : SPS_SERVER_ENABLE_CFM \r\n");
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -368,9 +462,7 @@ static int gapc_disconnect_ind_handler(ke_msg_id_t const msgid,
 
     //Go to idle state
     ke_state_set(TASK_SPS_SERVER, SPS_SERVER_IDLE);
-	 // printf_string("****************************************************** \r\n ");
-	 // printf_string("TASK_SPS_SERVER ==>> SPS_SERVER_IDLE ***************** \r\n ");
-		//printf_string("****************************************************** \r\n ");
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -399,7 +491,7 @@ static int gattc_cmp_evt_handler(ke_msg_id_t const msgid,
     {
         tx_busy_flag--;
         if ((tx_busy_flag == 0) && (ble_flags.txAllowed == TRUE))
-		{
+		    {
             if ((read_amount = app_item_count(&uarttoble_buffer)) > TX_WAIT_LEVEL)
             {
                 if (read_amount > TX_SIZE)
@@ -419,6 +511,7 @@ static int gattc_cmp_evt_handler(ke_msg_id_t const msgid,
             }
         }
     }
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -497,6 +590,8 @@ static int sps_server_send_notify_flow_control_state_req_handler(ke_msg_id_t con
 }
 
 
+
+
 /**
  ****************************************************************************************
  * @brief Handles reception of the @ref GATT_WRITE_CMD_IND message.
@@ -555,7 +650,41 @@ static int gattc_write_cmd_ind_handler(ke_msg_id_t const msgid,
             atts_write_rsp_send(sps_server_env.con_info.conidx, param->handle, PRF_ERR_OK);				
         }
     }
+		else if (param->handle == sps_server_env.shdl + SPS_LED_CTRL_VAL)
+    {
+       /*********************************************************************************/     
+			 // Allocate the alert value change indication
+			 attmdb_att_set_value(sps_server_env.shdl + SPS_LED_CTRL_VAL,
+													  sizeof(uint8_t), 
+			                      (uint8_t *)&param->value[0]);
+			
+			sps_led_value = param->value[0];
+			 // Send the message
+			 // ke_msg_send(ind);
+	     printf_string(" Write data \r\n");
+    }
     return (KE_MSG_CONSUMED);
+}
+
+
+/** 
+ **************************************************************************************** 
+ * @brief Handles write of 1st characteristic event indication from sample128 profile 
+ * @return If the message was consumed or not. 
+ **************************************************************************************** 
+ */ 
+ 
+int sps_server_led_ind_handler(ke_msg_id_t const msgid, 
+															struct sps_server_led_val_ind const *param, 
+															ke_task_id_t const dest_id, 
+															ke_task_id_t const src_id)
+{
+	 //sample128_placeholder = param->val;
+	
+	 memcpy(&sps_led_value,&param->value,sizeof(uint8_t));
+	
+	 return (KE_MSG_CONSUMED); 
+	
 }
 
 
@@ -582,7 +711,8 @@ const struct ke_msg_handler sps_server_active[] =
     {GATTC_CMP_EVT,                         (ke_msg_func_t)gattc_cmp_evt_handler},
     {GATTC_WRITE_CMD_IND,                   (ke_msg_func_t)gattc_write_cmd_ind_handler},
     {SPS_SERVER_INIT_BLE_TX_REQ,            (ke_msg_func_t)sps_server_init_ble_tx_req_handler},
-    {SPS_SERVER_SEND_FLOW_CONTROL_REQ,		(ke_msg_func_t)sps_server_send_notify_flow_control_state_req_handler},
+    {SPS_SERVER_SEND_FLOW_CONTROL_REQ,		  (ke_msg_func_t)sps_server_send_notify_flow_control_state_req_handler},
+		{SPS_SERVER_LED_CONTROL_IND,            (ke_msg_func_t)sps_server_led_ind_handler},
 }; 
 
 /// Specifies the message handler structure for every input state

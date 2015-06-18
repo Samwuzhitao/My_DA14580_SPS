@@ -48,3 +48,4 @@
 .\out\app_sample128.o: .\..\..\..\src\ip\ble\hl\src\profiles\prf_types.h
 .\out\app_sample128.o: ..\..\..\src\ip\ble\hl\src\profiles\sample128\sample128_task.h
 .\out\app_sample128.o: app_sample128.h
+.\out\app_sample128.o: ..\..\..\src\modules\app\src\app_project\sps\uart\uart_sps.h

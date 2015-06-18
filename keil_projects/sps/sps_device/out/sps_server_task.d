@@ -73,3 +73,5 @@
 .\out\sps_server_task.o: d:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
 .\out\sps_server_task.o: ..\..\..\src\modules\app\src\app_profiles\spss\app_spss.h
 .\out\sps_server_task.o: ..\..\..\src\ip\ble\hl\src\profiles\sps\sps_server\sps_server.h
+.\out\sps_server_task.o: .\..\..\..\src\plf\refip\src\driver\gpio\gpio.h
+.\out\sps_server_task.o: .\..\..\..\src\modules\app\src\app_project\sps\system\periph_setup.h

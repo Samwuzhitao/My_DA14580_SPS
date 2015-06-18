@@ -163,7 +163,7 @@ NMI_Handler\
                 bx r1
 NMI_stacking_used_MSP
                 mrs r0, msp
-                ldr r1,=NMI_HandlerC
+                ldr r1,=NMI_Handler
                 bx r1
                 ENDP
                 

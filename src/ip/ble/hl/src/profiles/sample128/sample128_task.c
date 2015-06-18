@@ -102,9 +102,6 @@ static int sample128_create_db_req_handler(ke_msg_id_t const msgid,
                                                ATT_UUID_16_LEN, (uint8_t*) &att_decl_char, PERM(RD, ENABLE),
                                                &(char_hdl));
             
-            //status = attmdb_add_attribute(sample128_env.sample128_shdl, SAMPLE128_CHAR1_DESC_LEN, 
-            //                                   ATT_UUID_16_LEN, (uint8_t*) &att_decl_desc, PERM(RD, ENABLE),
-            //                                   &(desc_hdl));
             
             //add val attribute
             status = attmdb_add_attribute(sample128_env.sample128_shdl, sizeof(My_new_t), //Data size = 8

@@ -7,6 +7,7 @@
 #include "sample128.h"
 #include "sample128_task.h"
 #include "app_sample128.h"
+#include "uart_sps.h"
 
 extern My_new_t sample128_my_new;
 
@@ -38,7 +39,7 @@ void app_sample128_enable(void)
 	memcpy(&req->sample128_1_val,&sample128_my_new,sizeof(My_new_t));
 	req->sample128_2_val = 0xff; // default value for sample128 characteristic 2
 	req->feature         = 0x00; // client CFG notify/indication
-	
+  printf_string(" app_sample128_enable \r\n");
 	// send the message
 	ke_msg_send(req);
 	
